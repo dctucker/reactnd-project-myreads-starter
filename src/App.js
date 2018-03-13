@@ -6,12 +6,46 @@ import './App.css'
 
 class BooksApp extends React.Component {
   state = {
-    books: []
+    books: [],
+    shelfs: {
+      currentlyReading: [],
+      wantToRead: [],
+      read: []
+    }
+  }
+
+  defaultShelfs = () => {
+    return {
+      currentlyReading: [],
+      wantToRead: [],
+      read: []
+    }
+  }
+
+  shelfs = [
+    ["currentlyReading", "Currently Reading"],
+    ["wantToRead", "Want to Read"],
+    ["read", "Read"]
+  ]
+
+  loadBooks = () => {
+    BooksAPI.getAll().then((books) => {
+      this.setState({ books: books })
+      var shelfs = this.defaultShelfs()
+      books.map((book) => {
+        shelfs[book.shelf].push(book.id)
+      })
+      this.setState({ shelfs: shelfs })
+    })
   }
 
   componentDidMount() {
-    BooksAPI.getAll().then((books) => {
-      this.setState({ books: books })
+    this.loadBooks()
+  }
+
+  onMoveBook = (book, shelf) => {
+    BooksAPI.update(book, shelf).then((shelfs) => {
+      this.loadBooks()
     })
   }
 
@@ -47,18 +81,14 @@ class BooksApp extends React.Component {
             </div>
             <div className="list-books-content">
               <div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Currently Reading</h2>
-                  <BookList books={this.state.books.filter((book) => book.shelf === "currentlyReading")} />
-                </div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Want to Read</h2>
-                  <BookList books={this.state.books.filter((book) => book.shelf === "wantToRead")} />
-                </div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Read</h2>
-                  <BookList books={this.state.books.filter((book) => book.shelf === "read")} />
-                </div>
+                {this.shelfs.map(([shelf, title]) => (
+                  <BookList
+                    title={title}
+                    shelf={shelf}
+                    books={this.state.books.filter((book) => book.shelf === shelf )}
+                    onMoveBook={this.onMoveBook}
+                  />
+                ))}
               </div>
             </div>
             <div className="open-search">
