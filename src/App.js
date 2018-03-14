@@ -33,7 +33,7 @@ class BooksApp extends React.Component {
       this.setState({ books: books })
       var shelfs = this.defaultShelfs()
       books.map((book) => {
-        shelfs[book.shelf].push(book.id)
+        return shelfs[book.shelf].push(book.id)
       })
       this.setState({ shelfs: shelfs })
     })
@@ -46,6 +46,14 @@ class BooksApp extends React.Component {
   onMoveBook = (book, shelf) => {
     BooksAPI.update(book, shelf).then((shelfs) => {
       this.loadBooks()
+    })
+  }
+
+  onSearch = (event) => {
+    BooksAPI.search(event.target.value).then((books) => {
+      if( Array.isArray(books) ){
+        this.setState({ books: books })
+      }
     })
   }
 
@@ -65,12 +73,14 @@ class BooksApp extends React.Component {
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <input type="text" placeholder="Search by title or author"/>
+                <input type="text" onChange={this.onSearch} placeholder="Search by title or author"/>
 
               </div>
             </div>
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+              <BookList
+                books={this.state.books}
+              />
             </div>
           </div>
         )}/>
@@ -82,12 +92,15 @@ class BooksApp extends React.Component {
             <div className="list-books-content">
               <div>
                 {this.shelfs.map(([shelf, title]) => (
-                  <BookList
-                    title={title}
-                    shelf={shelf}
-                    books={this.state.books.filter((book) => book.shelf === shelf )}
-                    onMoveBook={this.onMoveBook}
-                  />
+                  <div className="bookshelf" key={shelf}>
+                    <h2 className="bookshelf-title">{title}</h2>
+                    <div className="bookshelf-books">
+                      <BookList
+                        books={this.state.books.filter((book) => book.shelf === shelf )}
+                        onMoveBook={this.onMoveBook}
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
