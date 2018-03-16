@@ -7,14 +7,27 @@ class Book extends Component {
   }
 
   render() {
+    const data = this.props.data
     return (
       <div className="book">
         <div className="book-top">
-          <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${this.props.data.imageLinks.smallThumbnail})` }}></div>
+          <div className="book-cover" style={
+            {
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${data.imageLinks && data.imageLinks.smallThumbnail})`
+            }
+          }></div>
           {this.props.children}
         </div>
-        <div className="book-title">{this.props.data.title}</div>
-        <div className="book-authors">{this.props.data.authors}</div>
+        <div className="book-title">{data.title}</div>
+        <div className="book-authors">
+          {data.authors && (
+            <span>
+              {data.authors.join(', ')}
+            </span>
+          )}
+        </div>
       </div>
     )
   }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route, Link } from 'react-router-dom'
+import { DebounceInput } from 'react-debounce-input'
 import BookList from './BookList'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
@@ -7,11 +8,13 @@ import './App.css'
 class BooksApp extends React.Component {
   state = {
     books: [],
+    results: [],
     shelfs: {
       currentlyReading: [],
       wantToRead: [],
       read: []
-    }
+    },
+    query: ""
   }
 
   defaultShelfs = () => {
@@ -44,15 +47,37 @@ class BooksApp extends React.Component {
   }
 
   onMoveBook = (book, shelf) => {
+    book.shelf = shelf
+    this.state.results.filter((result) => result.id === book.id).map((result) => {
+      return result.shelf = shelf
+    })
     BooksAPI.update(book, shelf).then((shelfs) => {
       this.loadBooks()
     })
   }
 
   onSearch = (event) => {
-    BooksAPI.search(event.target.value).then((books) => {
-      if( Array.isArray(books) ){
-        this.setState({ books: books })
+    let noresults = document.getElementById('search-books-noresults');
+    let value = event.target.value
+    this.setState({ query: value })
+    noresults.style.display = "none"
+    BooksAPI.search(value).then((results) => {
+      if( Array.isArray(results) ){
+        this.setState({
+          results: results.map((result) => {
+            this.state.books.filter((book) => book.id === result.id).map((book) => {
+              return result.shelf = book.shelf
+            })
+            return result
+          })
+        })
+      } else {
+        this.setState({
+          results: []
+        })
+        if( this.state.query.length > 0 ){
+          noresults.style.display = "block"
+        }
       }
     })
   }
@@ -73,15 +98,22 @@ class BooksApp extends React.Component {
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <input type="text" onChange={this.onSearch} placeholder="Search by title or author"/>
-
+                <DebounceInput
+                  onChange={this.onSearch}
+                  minLength={2}
+                  debounceTimeout={200}
+                  placeholder="Search by title or author"
+                  value={this.state.query}
+                />
               </div>
             </div>
             <div className="search-books-results">
               <BookList
-                books={this.state.books}
+                books={this.state.results}
+                onMoveBook={this.onMoveBook}
               />
             </div>
+            <div id="search-books-noresults" style={{display: "none"}}>No books found</div>
           </div>
         )}/>
         <Route exact path='/' render={() => (
