@@ -41,8 +41,8 @@ class BooksApp extends React.Component {
 
   // called when user stops typing to load search results
   onSearch = (event) => {
-    let noresults = document.getElementById('search-books-noresults');
-    let value = event.target.value
+    const noresults = document.getElementById('search-books-noresults');
+    const value = event.target.value
     this.setState({ query: value })
     noresults.style.display = "none"
     BooksAPI.search(value).then((results) => {
