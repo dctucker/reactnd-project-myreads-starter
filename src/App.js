@@ -9,13 +9,13 @@ class BooksApp extends React.Component {
   state = {
     books: [],
     results: [],
-    query: "" // search terms: https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
+    query: '' // search terms: https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
   }
 
   shelfs = [
-    ["currentlyReading", "Currently Reading"],
-    ["wantToRead", "Want to Read"],
-    ["read", "Read"]
+    ['currentlyReading', 'Currently Reading'],
+    ['wantToRead', 'Want to Read'],
+    ['read', 'Read']
   ]
 
   componentDidMount() {
@@ -44,7 +44,7 @@ class BooksApp extends React.Component {
     const noresults = document.getElementById('search-books-noresults');
     const value = event.target.value
     this.setState({ query: value })
-    noresults.style.display = "none"
+    noresults.style.display = 'none'
     BooksAPI.search(value).then((results) => {
       if( Array.isArray(results) ){
         this.setState({
@@ -62,7 +62,7 @@ class BooksApp extends React.Component {
         })
         // hide empty result set message if search box is empty
         if( this.state.query.length > 0 ){
-          noresults.style.display = "block"
+          noresults.style.display = 'block'
         }
       }
     })
