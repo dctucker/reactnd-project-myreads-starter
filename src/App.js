@@ -9,20 +9,7 @@ class BooksApp extends React.Component {
   state = {
     books: [],
     results: [],
-    shelfs: {
-      currentlyReading: [],
-      wantToRead: [],
-      read: []
-    },
-    query: ""
-  }
-
-  defaultShelfs = () => {
-    return {
-      currentlyReading: [],
-      wantToRead: [],
-      read: []
-    }
+    query: "" // search terms: https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
   }
 
   shelfs = [
@@ -31,19 +18,14 @@ class BooksApp extends React.Component {
     ["read", "Read"]
   ]
 
+  componentDidMount() {
+    this.loadBooks()
+  }
+
   loadBooks = () => {
     BooksAPI.getAll().then((books) => {
       this.setState({ books: books })
-      var shelfs = this.defaultShelfs()
-      books.map((book) => {
-        return shelfs[book.shelf].push(book.id)
-      })
-      this.setState({ shelfs: shelfs })
     })
-  }
-
-  componentDidMount() {
-    this.loadBooks()
   }
 
   onMoveBook = (book, shelf) => {
@@ -51,11 +33,13 @@ class BooksApp extends React.Component {
     this.state.results.filter((result) => result.id === book.id).map((result) => {
       return result.shelf = shelf
     })
-    BooksAPI.update(book, shelf).then((shelfs) => {
+	  BooksAPI.update(book, shelf).then((_) => {
+      // discard the response and just do another API call to get the books
       this.loadBooks()
     })
   }
 
+  // called when user stops typing to load search results
   onSearch = (event) => {
     let noresults = document.getElementById('search-books-noresults');
     let value = event.target.value
@@ -72,9 +56,11 @@ class BooksApp extends React.Component {
           })
         })
       } else {
+        // handle empty/error state
         this.setState({
           results: []
         })
+        // hide empty result set message if search box is empty
         if( this.state.query.length > 0 ){
           noresults.style.display = "block"
         }
@@ -90,14 +76,6 @@ class BooksApp extends React.Component {
             <div className="search-books-bar">
               <Link to="/" className="close-search">Close</Link>
               <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
                 <DebounceInput
                   onChange={this.onSearch}
                   minLength={2}

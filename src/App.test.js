@@ -13,4 +13,4 @@ it('renders without crashing', () => {
   ReactDOM.render(<App />, div)
 })
 
-
+// more efficient to test by hand for now
